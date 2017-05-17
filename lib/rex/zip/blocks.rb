@@ -107,12 +107,13 @@ class CentralDir
 
   SIGNATURE = 0x2014b50
 
-  def initialize(entry, offset)
+  def initialize(entry, offset, version_made_by = ZIP_VERSION)
     @entry = entry
     @disknum_start = 0
     @attr_int = 0
     @attr_ext = 0x20
     @hdr_offset = offset
+    @version_made_by = version_made_by
   end
 
   def pack
@@ -122,7 +123,7 @@ class CentralDir
       path = @entry.central_dir_path
     end
 
-    ret = [ SIGNATURE, ZIP_VERSION ].pack('Vv')
+    ret = [ SIGNATURE, @version_made_by ].pack('Vv')
     ret << [ ZIP_VERSION ].pack('v')
     ret << @entry.flags.pack
     ret << @entry.info.pack

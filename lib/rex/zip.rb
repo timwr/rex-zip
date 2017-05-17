@@ -26,7 +26,8 @@ module Rex
     # a child of Archive, implements Java ARchives for creating java applications
     require 'rex/zip/jar'
 
-    ZIP_VERSION = 0x14
+    ZIP_VERSION         = 0x14
+    ZIP_VERSION_UNIX    = 0x0314
 
     # general purpose bit flag values
     #
@@ -88,9 +89,10 @@ module Rex
     # bits 2 & 3 are reserved
     IFA_MAINFRAME_MODE  = 0x0002 # ??
 
-
     # external file attributes
     EFA_ISDIR           = 0x0001
+    EFA_UNIX_RW         = 0644 << 16
+    EFA_UNIX_RWX        = 0755 << 16
 
   end
 end

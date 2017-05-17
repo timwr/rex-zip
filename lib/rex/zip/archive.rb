@@ -11,10 +11,10 @@ class Archive
   # An array of the Entry objects stored in this Archive.
   attr_reader :entries
 
-
-  def initialize(compmeth=CM_DEFLATE)
+  def initialize(compmeth=CM_DEFLATE, version_made_by = ZIP_VERSION)
     @compmeth = compmeth
     @entries = []
+    @version_made_by = version_made_by
   end
 
   #
@@ -42,7 +42,7 @@ class Archive
   # it will be used to spoof the name at the Central Directory
   # at packing time.
   #
-  def add_file(fname, fdata=nil, xtra=nil, comment=nil, central_dir_name=nil)
+  def add_file(fname, fdata=nil, xtra=nil, comment=nil, central_dir_name=nil, attrs=nil)
     if (not fdata)
       begin
         st = File.stat(fname)
@@ -52,7 +52,11 @@ class Archive
 
       ts = st.mtime
       if (st.directory?)
-        attrs = EFA_ISDIR
+        if @version_made_by == ZIP_VERSION_UNIX
+          attrs ||= EFA_UNIX_RWX
+        else
+          attrs ||= EFA_ISDIR
+        end
         fdata = ''
         unless fname[-1,1] == '/'
           fname += '/'
@@ -62,6 +66,9 @@ class Archive
         fdata = f.read(f.stat.size)
         f.close
       end
+    end
+    if @version_made_by == ZIP_VERSION_UNIX
+      attrs ||= EFA_UNIX_RW
     end
 
     @entries << Entry.new(fname, fdata, @compmeth, ts, attrs, xtra, comment, central_dir_name)
@@ -105,7 +112,7 @@ class Archive
     cfd_offset = ret.length
     idx = 0
     @entries.each { |ent|
-      cfd = CentralDir.new(ent, offsets[idx])
+      cfd = CentralDir.new(ent, offsets[idx], @version_made_by)
       ret << cfd.pack
       idx += 1
     }
