@@ -42,7 +42,7 @@ class Archive
   # it will be used to spoof the name at the Central Directory
   # at packing time.
   #
-  def add_file(fname, fdata=nil, xtra=nil, comment=nil, central_dir_name=nil)
+  def add_file(fname, fdata=nil, xtra=nil, comment=nil, central_dir_name=nil, attrs=nil)
     if (not fdata)
       begin
         st = File.stat(fname)
